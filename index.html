@@ -1,1 +1,545 @@
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envoyer un email</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0e0f11;
+            --bg-card: #16171b;
+            --border: #2a2c32;
+            --fg: #e8e6e3;
+            --muted: #7a7d85;
+            --accent: #e8a23a;
+            --accent-glow: rgba(232, 162, 58, 0.15);
+            --success: #34d399;
+            --error: #f87171;
+            --radius: 14px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bg-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.4;
+            animation: float 12s ease-in-out infinite alternate;
+        }
+
+        .bg-blob--1 {
+            width: 500px;
+            height: 500px;
+            background: var(--accent);
+            top: -15%;
+            right: -10%;
+            opacity: 0.12;
+        }
+
+        .bg-blob--2 {
+            width: 350px;
+            height: 350px;
+            background: #2dd4bf;
+            bottom: -10%;
+            left: -5%;
+            opacity: 0.08;
+            animation-delay: -4s;
+        }
+
+        .bg-blob--3 {
+            width: 200px;
+            height: 200px;
+            background: var(--accent);
+            top: 50%;
+            left: 50%;
+            opacity: 0.06;
+            animation-delay: -8s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, -40px) scale(1.1); }
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 520px;
+            margin: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.5rem 2rem 2rem;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.03),
+                0 20px 60px rgba(0,0,0,0.4);
+            animation: cardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.97);
+            }
+        }
+
+        .card-header {
+            margin-bottom: 2rem;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(232, 162, 58, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+        }
+
+        .card-subtitle {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-top: 0.4rem;
+            font-weight: 300;
+        }
+
+        .field {
+            margin-bottom: 1.25rem;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--fg);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .field-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .field-input::placeholder {
+            color: #444;
+        }
+
+        textarea.field-input {
+            resize: vertical;
+            min-height: 130px;
+            line-height: 1.6;
+        }
+
+        .title-preview {
+            margin-bottom: 1.5rem;
+            padding: 0.75rem 1rem;
+            background: rgba(232, 162, 58, 0.05);
+            border: 1px dashed rgba(232, 162, 58, 0.2);
+            border-radius: 10px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.3s;
+        }
+
+        .title-preview.has-content {
+            border-color: rgba(232, 162, 58, 0.4);
+            background: rgba(232, 162, 58, 0.08);
+        }
+
+        .title-preview-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            flex-shrink: 0;
+        }
+
+        .title-preview-text {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--accent);
+            letter-spacing: -0.01em;
+        }
+
+        .title-preview-text.empty {
+            color: #444;
+            font-weight: 300;
+            font-style: italic;
+        }
+
+        .btn-send {
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent);
+            color: #0e0f11;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            transition: transform 0.15s, box-shadow 0.25s, opacity 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-send:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(232, 162, 58, 0.3);
+        }
+
+        .btn-send:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .btn-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-send .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid transparent;
+            border-top-color: #0e0f11;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        .btn-send.loading .spinner {
+            display: block;
+        }
+
+        .btn-send.loading .btn-text {
+            opacity: 0.6;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast {
+            padding: 0.85rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+            min-width: 280px;
+        }
+
+        .toast--success {
+            background: #065f46;
+            border: 1px solid #10b981;
+            color: #d1fae5;
+        }
+
+        .toast--error {
+            background: #7f1d1d;
+            border: 1px solid #f87171;
+            color: #fecaca;
+        }
+
+        .toast.removing {
+            animation: toastOut 0.3s ease-in both;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(40px) scale(0.95); }
+        }
+
+        @keyframes toastOut {
+            to { opacity: 0; transform: translateX(40px) scale(0.95); }
+        }
+
+        .card-footer {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-footer-text {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            display: inline-block;
+            margin-right: 0.4rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @media (max-width: 540px) {
+            .card {
+                padding: 2rem 1.5rem 1.5rem;
+            }
+            .card-title {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-layer">
+        <div class="bg-blob bg-blob--1"></div>
+        <div class="bg-blob bg-blob--2"></div>
+        <div class="bg-blob bg-blob--3"></div>
+    </div>
+    <div class="bg-grid"></div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <main class="card">
+        <header class="card-header">
+            <div class="card-icon">
+                <i class="fa-solid fa-paper-plane"></i>
+            </div>
+            <h1 class="card-title">Envoyer un email</h1>
+            <p class="card-subtitle">Les 3 premiers mots deviennent le titre</p>
+        </header>
+
+        <form id="emailForm" autocomplete="off">
+            <div class="field">
+                <label class="field-label" for="toEmail">Destinataire</label>
+                <input
+                    type="email"
+                    id="toEmail"
+                    class="field-input"
+                    placeholder="prenom@exemple.com"
+                    required
+                    aria-label="Adresse email du destinataire"
+                >
+            </div>
+
+            <div class="field">
+                <label class="field-label" for="message">Message</label>
+                <textarea
+                    id="message"
+                    class="field-input"
+                    placeholder="Tape ton message ici..."
+                    required
+                    aria-label="Contenu de l'email"
+                ></textarea>
+            </div>
+
+            <div class="title-preview" id="titlePreview">
+                <span class="title-preview-label">Titre :</span>
+                <span class="title-preview-text empty" id="titleText">En attente de saisie...</span>
+            </div>
+
+            <button type="submit" class="btn-send" id="btnSend">
+                <span class="spinner"></span>
+                <span class="btn-text"><i class="fa-solid fa-arrow-right"></i> Envoyer</span>
+            </button>
+        </form>
+
+        <footer class="card-footer">
+            <span class="card-footer-text">
+                <span class="status-dot"></span>API active
+            </span>
+            <span class="card-footer-text">Vercel Serverless</span>
+        </footer>
+    </main>
+
+    <script>
+        const form = document.getElementById('emailForm');
+        const messageInput = document.getElementById('message');
+        const toEmailInput = document.getElementById('toEmail');
+        const titleText = document.getElementById('titleText');
+        const titlePreview = document.getElementById('titlePreview');
+        const btnSend = document.getElementById('btnSend');
+        const toastContainer = document.getElementById('toastContainer');
+
+        function extractTitle(text) {
+            const words = text.trim().split(/\s+/).filter(w => w.length > 0);
+            return words.slice(0, 3).join(' ');
+        }
+
+        messageInput.addEventListener('input', () => {
+            const title = extractTitle(messageInput.value);
+            if (title) {
+                titleText.textContent = title;
+                titleText.classList.remove('empty');
+                titlePreview.classList.add('has-content');
+            } else {
+                titleText.textContent = 'En attente de saisie...';
+                titleText.classList.add('empty');
+                titlePreview.classList.remove('has-content');
+            }
+        });
+
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = 'toast toast--' + type;
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            toast.innerHTML = '<i class="fa-solid ' + icon + '"></i> ' + message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('removing');
+                toast.addEventListener('animationend', () => toast.remove());
+            }, 4000);
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const toEmail = toEmailInput.value.trim();
+            const message = messageInput.value.trim();
+            const title = extractTitle(message);
+
+            if (!toEmail || !message) {
+                showToast('Remplis tous les champs.', 'error');
+                return;
+            }
+
+            if (title.split(' ').length < 3) {
+                showToast('Il faut au moins 3 mots pour le titre.', 'error');
+                return;
+            }
+
+            btnSend.classList.add('loading');
+            btnSend.disabled = true;
+
+            try {
+                const res = await fetch('/api/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to: toEmail, title: title, message: message })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast('Email envoyé à ' + toEmail, 'success');
+                    form.reset();
+                    titleText.textContent = 'En attente de saisie...';
+                    titleText.classList.add('empty');
+                    titlePreview.classList.remove('has-content');
+                } else {
+                    showToast(data.error || "Erreur lors de l'envoi.", 'error');
+                }
+            } catch (err) {
+                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                    showToast('[Local] Simulé — Titre: "' + title + '" → ' + toEmail, 'success');
+                    form.reset();
+                    titleText.textContent = 'En attente de saisie...';
+                    titleText.classList.add('empty');
+                    titlePreview.classList.remove('has-content');
+                } else {
+                    showToast("Impossible de contacter l'API.", 'error');
+                }
+            } finally {
+                btnSend.classList.remove('loading');
+                btnSend.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
