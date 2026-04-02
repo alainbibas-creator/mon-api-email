@@ -1,0 +1,9 @@
+{
+  "name": "mon-api-email",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "API serverless Vercel pour l'envoi d'emails via Resend",
+  "dependencies": {
+    "resend": "^4.0.0"
+  }
+}

@@ -499,8 +499,8 @@
                 return;
             }
 
-            if (title.split(' ').length < 3) {
-                showToast('Il faut au moins 3 mots pour le titre.', 'error');
+            if (title.trim().length === 0) {
+                showToast('Le message ne peut pas être vide.', 'error');
                 return;
             }
 
@@ -517,24 +517,18 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    showToast('Email envoyé à ' + toEmail, 'success');
+                    const label = data.simulated ? 'Simulé' : 'Envoyé';
+                    showToast(label + ' → "' + title + '" à ' + toEmail, 'success');
                     form.reset();
                     titleText.textContent = 'En attente de saisie...';
                     titleText.classList.add('empty');
                     titlePreview.classList.remove('has-content');
                 } else {
                     showToast(data.error || "Erreur lors de l'envoi.", 'error');
+                    return;
                 }
             } catch (err) {
-                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-                    showToast('[Local] Simulé — Titre: "' + title + '" → ' + toEmail, 'success');
-                    form.reset();
-                    titleText.textContent = 'En attente de saisie...';
-                    titleText.classList.add('empty');
-                    titlePreview.classList.remove('has-content');
-                } else {
-                    showToast("Impossible de contacter l'API.", 'error');
-                }
+                showToast("Impossible de contacter l'API.", 'error');
             } finally {
                 btnSend.classList.remove('loading');
                 btnSend.disabled = false;
